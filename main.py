@@ -6,6 +6,21 @@ import openpyxl
 from conn import execute,insert_data,update_data, delete_lead
 from collections import defaultdict
 
+#varibale months
+months_map = {
+    'january': 1,
+    'february': 2,
+    'march': 3,
+    'april': 4,
+    'may': 5,
+    'june': 6,
+    'july': 7,
+    'august': 8,
+    'september': 9,
+    'october': 10,
+    'november': 11,
+    'december': 12,
+}
 
 def main_menu_choice():
     """Function to display the main menu and get user input"""
@@ -417,6 +432,17 @@ def delete_data():
         else:
             print("Invalid choice. Please enter 1 or 2.")
 
+#Transaction function 
+def transaction():
+    print("====TRANSACTION====")
+    
+    month = input("Enter the month to filter leads: ")
+
+    # Assuming you have a function or a method to retrieve your lead data
+    data_lead = execute("SELECT * FROM data_lead")  # Adjust as necessary to fit your context
+
+    # Call the filtering function with both the month and the data_lead
+    filter_leads_by_month(month, data_lead)
 
 
 def validate_email(email):
@@ -525,8 +551,58 @@ def details_of_leads(data_lead): #dont forget put the parameneter here to call t
         print(f"Transaction = {detail[9]}")
         print(f"Status = {detail[10]}")
 
+def filter_leads_by_month(month, data_lead):
+    """Function to filter and sum transactions for a given month."""
+    
+    # Normalize the input to lowercase to make it case-insensitive
+    month = month.lower()
+    
+    if month in months_map:
+        month_number = months_map[month]
+        total_transaction_value = 0
+        filtered_leads = []
 
+        # Loop through the leads data and filter by the given month
+        for lead in data_lead:
+            lead_date = lead[7]  # Assuming index 7 contains the date
+            
+            # Convert lead_date to datetime.date if it's a string
+            if isinstance(lead_date, str):
+                lead_date = datetime.strptime(lead_date, '%Y-%m-%d').date()
+            
+            lead_month = lead_date.month  # Get the month from the date object
+            
+            # Debug output
+            print(f"Lead Date: {lead_date}, Month: {lead_month}, Month Number: {month_number}")
 
+            if lead_month == month_number:
+                filtered_leads.append(lead)
+                total_transaction_value += float(lead[9])  # Assuming index 9 contains the 'Transaction' value
+
+        # Check if any leads were found
+        if filtered_leads:
+            print(f"Total transaction value in {month.capitalize()}: {total_transaction_value}")
+        else:
+            print(f"No leads found for {month.capitalize()}.")
+    else:
+        print("Invalid month name. Please enter a valid month.")
+
+def login():
+        
+    while True:
+
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+
+        is_username_exists= execute(f"select * from valid_user where username = '{username}' and password = '{password}'")
+
+        if len(is_username_exists) > 0 :
+            print("Login Successful")
+            return True
+        else:
+            print("Login unsuccessful. Please try again ")
+            return False
+        
 # Main program loop
 while True:
     # Ensure login before allowing access to the menu
