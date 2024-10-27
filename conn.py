@@ -29,3 +29,16 @@ def execute(query, params=None):
     connection.close()
 
     return result
+
+def update_data(query):
+    connection = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="@Directioner123",
+    database="LeadManagementDB")
+
+    cursor = connection.cursor()
+    cursor.execute(query)
+    connection.commit()
+    cursor.close()
+    connection.close()
