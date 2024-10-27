@@ -3,7 +3,7 @@ from datetime import datetime
 import csv
 import pandas as pd
 import openpyxl
-from conn import execute,insert_data,update_data
+from conn import execute,insert_data,update_data, delete_lead
 from collections import defaultdict
 
 
@@ -368,6 +368,54 @@ def update_data_lead():
 
         except ValueError:
             print("Invalid input. Please enter a number.")
+
+#Delete data function
+
+def delete_data():
+    """Function to delete leads based on user input."""
+    
+    while True:
+        print("====DELETE DATA LEAD=====")
+
+        # Show options to the user
+        print("\nOptions:")
+        print("1. Delete lead by email")
+        print("2. Back to Main Menu")
+
+        user_input = input("Enter Choice: ")
+
+        if user_input == "1":  # Delete lead by email
+            # Show list of current leads before proceeding
+            all_leads = execute("SELECT * FROM data_lead")
+            active_leads = all_leads  # Fetch active leads from the database
+            show_list_of_leads(active_leads)  # Display active leads
+
+            # Ask user to input email
+            email = input("Enter email of the lead to delete: ")
+
+            # Find the lead with the matching email
+            lead_found = None
+            for lead in active_leads:
+                if lead[3] == email:  
+                    lead_found = lead  # Store the lead to delete
+                    break
+
+            if lead_found:  # If a matching lead was found
+                # Confirm deletion
+                user_confirmation = confirmation_page(action="delete", data=lead_found)
+                if user_confirmation == "1":  # Confirm deletion
+                    delete_lead(email)  # Call delete_lead with the email
+                    print(f"\nLead with email {email} has been successfully deleted.")
+                elif user_confirmation == "2":  # Cancel deletion
+                    print("\nLead not deleted.")
+            else:
+                print("No lead found with the provided email.")
+
+        elif user_input == "2":  # Back to Main Menu
+            return  # Exit back to the main menu
+
+        else:
+            print("Invalid choice. Please enter 1 or 2.")
 
 
 
