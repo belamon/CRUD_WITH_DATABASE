@@ -444,6 +444,28 @@ def transaction():
     # Call the filtering function with both the month and the data_lead
     filter_leads_by_month(month, data_lead)
 
+#report data function 
+def report_menu():
+    data_leads = execute("select * from data_lead")
+    while True:
+        print("\n==== Reporting Menu ====")
+        print("1. Generate Summary Report")
+        print("2. Back to Main Menu")
+    
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            report = generate_summary_report(data_leads)
+            print("============Summary Report:===========")
+            for sector, count in report.items():
+                print(f"{sector}: {count}")
+            input("Press enter  to continue...")
+        elif choice == "2":
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, 3, or 4.")
+
 
 def validate_email(email):
     """
@@ -586,6 +608,18 @@ def filter_leads_by_month(month, data_lead):
             print(f"No leads found for {month.capitalize()}.")
     else:
         print("Invalid month name. Please enter a valid month.")
+
+def generate_summary_report(data_leads):
+    """Generate a summary report of leads by company sector."""
+    report = defaultdict(int)  # Use defaultdict to avoid key errors
+
+    all_leads = execute(f"select * from data_lead")
+    for lead in all_leads:
+        sector = lead[5]
+        report[sector] += 1  # Increment the count for each sector
+
+    return report
+
 
 def login():
         
